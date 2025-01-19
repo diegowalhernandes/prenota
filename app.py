@@ -55,6 +55,7 @@ def register():
         last_name = request.form.get("last_name")
         email = request.form.get("email")
         phone_number = request.form.get("phone_number")
+        password = request.form.get("password")
 
         # Verifica se os campos foram preenchidos
         if not all([first_name, last_name, email, phone_number]):
@@ -76,6 +77,7 @@ def register():
                 last_name=last_name,
                 email=email,
                 phone_number=phone_number,
+                password=password
             )
             db.session.add(new_user)
             db.session.commit()
@@ -94,6 +96,26 @@ def register():
 @app.route("/view_properties")
 def view_properties():
     return render_template("view_properties.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")  # Aqui você pode implementar validação de senha no futuro
+
+        # Consulta para verificar o usuário
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            # Redireciona para o dashboard do usuário
+            flash(f"Welcome back, {user.first_name}!", "success")
+            return redirect(url_for("user_dashboard", user_id=user.id))
+        else:
+            flash("Invalid email or password.", "danger")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
+
 
 
 if __name__ == "__main__":
